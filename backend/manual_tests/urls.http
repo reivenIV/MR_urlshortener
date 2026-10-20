@@ -1,0 +1,22 @@
+@baseUrl = http://localhost:3003
+
+### create a url + NULLS
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "https://example.com"
+}
+
+### create a url with title + notes (COMPLET)
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "https://google.com",
+	"title": "Example",
+	"notes": "just a test"
+}
+
+### list all urls
+GET {{baseUrl}}/urls

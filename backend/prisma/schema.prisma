@@ -11,7 +11,7 @@ datasource db {
 }
 
 model urls {
-  id         BigInt   @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   raw_url    String
   short_code String   @unique
   title      String?
