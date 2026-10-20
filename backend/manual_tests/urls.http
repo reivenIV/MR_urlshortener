@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3003
+@baseUrl = http://localhost:3003/v1
 
 ### create a url + NULLS
 POST {{baseUrl}}/urls
@@ -19,4 +19,21 @@ Content-Type: application/json
 }
 
 ### list all urls
-GET {{baseUrl}}/urls
+GET {{baseUrl}}/urls/all
+
+### update a url (replace 1 with a real id)
+PATCH {{baseUrl}}/urls/1
+Content-Type: application/json
+
+{
+	"title": "new title"
+}
+
+### empty patch -> 400
+PATCH {{baseUrl}}/urls/1
+Content-Type: application/json
+
+{}
+
+### delete a url (replace 1 with a real id)
+DELETE {{baseUrl}}/urls/1

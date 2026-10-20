@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { CreateUrlDto } from './dto/create-url.dto.js';
-import { UpdateUrlDto } from './dto/update-url.dto.js';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { CreateUrlDto } from './dto/create_url.dto.js';
+import { UpdateUrlDto } from './dto/update_url.dto.js';
 import { UrlsService } from './urls.service.js';
 
 @Controller('urls')
@@ -12,7 +12,7 @@ export class UrlsController {
     return this.urlsService.create(dto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.urlsService.findAll();
   }
@@ -23,7 +23,6 @@ export class UrlsController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.urlsService.remove(id);
   }
