@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
 import { type urls } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateUrlDto } from './dto/create-url.dto.js';
+import { UpdateUrlDto } from './dto/update-url.dto.js';
 
 // what the API sends back for one url (same field names as the DB)
 export type UrlResponse = {
@@ -91,5 +92,41 @@ export class UrlsService {
       result.push(toResponse(resUrl));
     }
     return result;
+  }
+
+  // null if no url has this id
+  async findOne(id: number): Promise<urls | null> {
+    const resUrl = await this.prisma.urls.findUnique({ where: { id } });
+    return resUrl;
+  }
+
+  async update(id: number, dto: UpdateUrlDto): Promise<UrlResponse> {
+    let hasAtLeastOneField = false;
+    const values = Object.values(dto);
+    for (let i = 0; i < values.length; i++) {
+      if (values[i] !== undefined) {
+        hasAtLeastOneField = true;
+      }
+    }
+    if (!hasAtLeastOneField) {
+      throw new BadRequestException('Send at least one field to change: raw_url, title or notes');
+    }
+
+    const resExisting = await this.findOne(id);
+    if (!resExisting) {
+      throw new NotFoundException(`Url ${id} not found`);
+    }
+
+    const resUrl = await this.prisma.urls.update({ where: { id }, data: dto });
+    return toResponse(resUrl);
+  }
+
+  async remove(id: number): Promise<void> {
+    const resExisting = await this.findOne(id);
+    if (!resExisting) {
+      throw new NotFoundException(`Url ${id} not found`);
+    }
+
+    await this.prisma.urls.delete({ where: { id } });
   }
 }
