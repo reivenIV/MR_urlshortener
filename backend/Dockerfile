@@ -9,4 +9,5 @@ RUN npm ci
 
 EXPOSE 3003
 
-CMD ["npm", "run", "start:dev"]
+# generate client + apply migrations before starting, every time
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npm run start:dev"]
