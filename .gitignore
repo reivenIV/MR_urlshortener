@@ -1,16 +1,15 @@
 node_modules
 
-# Prisma: written by "prisma generate"
+# prisma generate makes this
 generated
 
-# Secrets: never committed
 .env
 .env.*
 !.env.example
 
-# Logs
 npm-debug.log*
 
-# Editor / OS files
 .DS_Store
 .vscode
+dist
+*.tsbuildinfo

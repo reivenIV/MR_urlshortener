@@ -1,0 +1,39 @@
+# values come from .env
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # 5432/5433 taken by other projects
+      - "5434:5432"
+    volumes:
+      # survives "down", only "down -v" wipes it
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      # "db" = service name, not localhost
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "3003:3003"
+    volumes:
+      # live reload
+      - ./backend:/app
+      # keep the image's node_modules
+      - /app/node_modules
+    depends_on:
+      db:
+        # wait for healthy, not just started
+        condition: service_healthy
+
+volumes:
+  db-data:
