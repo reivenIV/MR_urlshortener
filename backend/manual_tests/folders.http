@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3003/v1
+
+### create a folder
+POST {{baseUrl}}/folders
+Content-Type: application/json
+
+{
+	"name": "Work Stuff"
+}
+
+### create a folder with a description
+POST {{baseUrl}}/folders
+Content-Type: application/json
+
+{
+	"name": "Personal",
+	"description": "links for myself"
+}
+
+### list all folders
+GET {{baseUrl}}/folders/all
+
+### update a folder (replace 1 with a real id)
+PATCH {{baseUrl}}/folders/1
+Content-Type: application/json
+
+{
+	"description": "updated description"
+}
+
+### empty patch -> 400
+PATCH {{baseUrl}}/folders/1
+Content-Type: application/json
+
+{}
+
+### delete a folder (replace 1 with a real id)
+DELETE {{baseUrl}}/folders/1

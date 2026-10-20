@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:3003/v1
+
+### create a tag
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{
+	"name": "Music"
+}
+
+### create a tag with a color
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{
+	"name": "Work",
+	"color": "#00ff00"
+}
+
+### duplicate name, different case -> 409
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{
+	"name": "music"
+}
+
+### list all tags
+GET {{baseUrl}}/tags/all
+
+### update a tag (replace 1 with a real id)
+PATCH {{baseUrl}}/tags/1
+Content-Type: application/json
+
+{
+	"color": "#ff0000"
+}
+
+### empty patch -> 400
+PATCH {{baseUrl}}/tags/1
+Content-Type: application/json
+
+{}
+
+### delete a tag (replace 1 with a real id)
+DELETE {{baseUrl}}/tags/1

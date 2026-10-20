@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:3003/v1
+
+### clicks of a url (replace 1 with a real url id)
+GET {{baseUrl}}/urls/amount_clicks/1
+
+### made-up url id -> 404
+GET {{baseUrl}}/urls/amount_clicks/999999

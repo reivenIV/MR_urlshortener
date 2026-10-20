@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
+import { hasAtLeastOneField } from '../common/common_validators.js';
 import { type urls } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { CreateUrlDto } from './dto/create-url.dto.js';
-import { UpdateUrlDto } from './dto/update-url.dto.js';
+import { CreateUrlDto } from './dto/create_url.dto.js';
+import { UpdateUrlDto } from './dto/update_url.dto.js';
 
 // what the API sends back for one url (same field names as the DB)
 export type UrlResponse = {
@@ -101,15 +102,8 @@ export class UrlsService {
   }
 
   async update(id: number, dto: UpdateUrlDto): Promise<UrlResponse> {
-    let hasAtLeastOneField = false;
-    const values = Object.values(dto);
-    for (let i = 0; i < values.length; i++) {
-      if (values[i] !== undefined) {
-        hasAtLeastOneField = true;
-      }
-    }
-    if (!hasAtLeastOneField) {
-      throw new BadRequestException('Send at least one field to change: raw_url, title or notes');
+    if (!hasAtLeastOneField(dto)) {
+      throw new BadRequestException(['Send at least one field to change: raw_url, title or notes']);
     }
 
     const resExisting = await this.findOne(id);
