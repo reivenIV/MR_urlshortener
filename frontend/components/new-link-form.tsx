@@ -27,12 +27,22 @@ export default function NewLinkForm({ onCreated }: Props) {
       setError(problem);
       return;
     }
-    const created = await api.createLink(value);
-    setLongUrl("https://"); // ready for the next one
-    if (onCreated) {
-      onCreated(created);
-    } else {
-      router.push("/links"); // no list here (Home): go see it there instead
+    try {
+      const created = await api.createLink(value);
+      setLongUrl("https://"); // ready for the next one
+      if (onCreated) {
+        onCreated(created);
+      } else {
+        router.push("/links"); // no list here (Home): go see it there instead
+      }
+    } catch (err) {
+      // the frontend's own check passed, but the backend rejected it anyway
+      // (e.g. a host with no real domain, like "hello")
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
     }
   }
 

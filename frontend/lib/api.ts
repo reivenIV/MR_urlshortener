@@ -1,7 +1,7 @@
 // Real calls to the backend. Replaces the old fake lib/links.ts.
 import type { LinkChanges, Tag, UrlCard, UrlCardWithTags } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3003/v1";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3003/v1";
 
 // Small shared fetch wrapper: throws on a non-2xx status, parses JSON only
 // when there's actually a body (DELETE /urls/:id comes back empty).
@@ -12,10 +12,27 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`${init?.method ?? "GET"} ${path} -> ${res.status}: ${body}`);
+    throw new Error(extractErrorMessage(body));
   }
   const text = await res.text();
   return text ? JSON.parse(text) : (undefined as T);
+}
+
+// The backend sends errors as { message: string[] | string, error, statusCode }.
+// Pulls out just the message, so the UI can show it as-is (e.g. "raw_url must be a URL address").
+function extractErrorMessage(body: string): string {
+  try {
+    const parsed = JSON.parse(body);
+    if (Array.isArray(parsed.message)) {
+      return parsed.message.join(", ");
+    }
+    if (typeof parsed.message === "string") {
+      return parsed.message;
+    }
+  } catch {
+    // body wasn't JSON, fall through to the raw text below
+  }
+  return body;
 }
 
 // Every card, each with its tags. Already ordered newest-edited-first by the backend.

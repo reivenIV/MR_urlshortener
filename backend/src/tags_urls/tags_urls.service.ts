@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { TagsService } from '../tags/tags.service.js';
-import { toResponse as toUrlResponse, UrlsService, type UrlWithTagsResponse } from '../urls/urls.service.js';
+import { UrlsService, type UrlWithTagsResponse } from '../urls/urls.service.js';
 import { TagUrlDto } from './dto/tag_url.dto.js';
 
 export type TagUrlResponse = {
@@ -77,20 +77,7 @@ export class TagsUrlsService {
 
     const result: UrlWithTagsResponse[] = [];
     for (const resTagUrl of resTagUrls) {
-      const urlResponse = toUrlResponse(resTagUrl.urls);
-      const all_tags = await this.urlsService.findTagsByUrl(resTagUrl.urls.id);
-      const click_count = await this.urlsService.findClickCountByUrl(resTagUrl.urls.id);
-      result.push({
-        id: urlResponse.id,
-        raw_url: urlResponse.raw_url,
-        short_code: urlResponse.short_code,
-        title: urlResponse.title,
-        notes: urlResponse.notes,
-        created_at: urlResponse.created_at,
-        updated_at: urlResponse.updated_at,
-        all_tags,
-        click_count,
-      });
+      result.push(await this.urlsService.buildUrlWithTags(resTagUrl.urls));
     }
     return result;
   }

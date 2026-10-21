@@ -28,17 +28,23 @@ export default function Sidebar() {
       </Link>
       {items.map((item) => {
         const active = pathname === item.href;
+
+        // aria-current tells screen readers which page is the current one
+        let ariaCurrent: "page" | undefined;
+        if (active) {
+          ariaCurrent = "page";
+        }
+
+        // Active: ink text + a thin ink bar on the left. Others: muted, ink on hover.
+        let linkClassName =
+          "flex items-center gap-2 border-l-2 px-3 py-2 text-body transition-colors duration-150 border-transparent text-muted hover:text-ink";
+        if (active) {
+          linkClassName =
+            "flex items-center gap-2 border-l-2 px-3 py-2 text-body transition-colors duration-150 border-ink font-medium text-ink";
+        }
+
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            // aria-current tells screen readers which page is the current one
-            aria-current={active ? "page" : undefined}
-            // Active: ink text + a thin ink bar on the left. Others: muted, ink on hover.
-            className={`flex items-center gap-2 border-l-2 px-3 py-2 text-body transition-colors duration-150 ${
-              active ? "border-ink font-medium text-ink" : "border-transparent text-muted hover:text-ink"
-            }`}
-          >
+          <Link key={item.href} href={item.href} aria-current={ariaCurrent} className={linkClassName}>
             {item.icon}
             {item.label}
           </Link>

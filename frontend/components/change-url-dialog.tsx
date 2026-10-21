@@ -8,7 +8,7 @@ import UrlInput from "./url-input";
 
 type Props = {
   link: UrlCard;
-  onSave: (raw_url: string) => void;
+  onSave: (raw_url: string) => Promise<void>;
   onClose: () => void;
 };
 
@@ -23,14 +23,23 @@ export default function ChangeUrlDialog({ link, onSave, onClose }: Props) {
     dialogRef.current?.showModal();
   }, []);
 
-  function submit() {
+  async function submit() {
     const value = newUrl.trim();
     const problem = checkUrl(value);
     if (problem) {
       setError(problem);
       return;
     }
-    onSave(value);
+    try {
+      await onSave(value);
+    } catch (err) {
+      // the frontend's own check passed, but the backend rejected it anyway
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
   }
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { API_URL } from "@/lib/api";
 import { MAX_NOTES_LENGTH, MAX_TAG_NAME_LENGTH, MAX_TAGS_PER_URL, MAX_TITLE_LENGTH } from "@/lib/constants";
 import type { LinkChanges, Tag, UrlCardWithTags } from "@/lib/types";
 import { IconButton } from "./button";
@@ -9,15 +10,13 @@ import ChipList from "./chip-list";
 import EditableText from "./editable-text";
 import { CheckIcon, ChevronIcon, CopyIcon, XIcon } from "./icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3003/v1";
-
 type Props = {
   link: UrlCardWithTags;
   allTags: Tag[];
-  onDelete: () => void;
-  onUpdate: (changes: LinkChanges) => void;
-  onAddTag: (name: string) => void;
-  onRemoveTag: (tagId: number) => void;
+  onDelete: () => Promise<void>;
+  onUpdate: (changes: LinkChanges) => Promise<void>;
+  onAddTag: (name: string) => Promise<void>;
+  onRemoveTag: (tagId: number) => Promise<void>;
 };
 
 // One card = one short link. It only displays data and reports user actions
@@ -25,6 +24,67 @@ type Props = {
 export default function UrlCardView({ link, allTags, onDelete, onUpdate, onAddTag, onRemoveTag }: Props) {
   const [copied, setCopied] = useState(false);
   const [changingUrl, setChangingUrl] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleDelete() {
+    try {
+      await onDelete();
+    } catch (err) {
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  }
+
+  async function saveTitle(title: string | null) {
+    try {
+      await onUpdate({ title });
+    } catch (err) {
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  }
+
+  async function saveNotes(notes: string | null) {
+    try {
+      await onUpdate({ notes });
+    } catch (err) {
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  }
+
+  async function handleAddTag(name: string) {
+    try {
+      await onAddTag(name);
+    } catch (err) {
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  }
+
+  async function handleRemoveTag(tagId: number) {
+    try {
+      await onRemoveTag(tagId);
+    } catch (err) {
+      let message = "Something went wrong. Try again.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  }
 
   // Short links are served by the backend, not this app, e.g. http://localhost:3003/aB3x9Qz
   const shortUrl = `${API_URL.replace(/\/v1$/, "")}/${link.short_code}`;
@@ -47,11 +107,18 @@ export default function UrlCardView({ link, allTags, onDelete, onUpdate, onAddTa
     clickLabel = "1 click";
   }
 
+  let copyLabel = "Copy short link";
+  let copyIcon = <CopyIcon />;
+  if (copied) {
+    copyLabel = "Copied!";
+    copyIcon = <CheckIcon />;
+  }
+
   return (
     <article className="relative flex flex-col gap-3 border border-hairline bg-surface p-6">
       <button
         type="button"
-        onClick={onDelete}
+        onClick={handleDelete}
         aria-label="Delete link"
         title="Delete link"
         className="absolute right-4 top-4 p-1 text-muted transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-ink"
@@ -63,22 +130,22 @@ export default function UrlCardView({ link, allTags, onDelete, onUpdate, onAddTa
         <EditableText
           value={link.title}
           placeholder="title"
-          onSave={(title) => onUpdate({ title })}
+          onSave={saveTitle}
           maxLength={MAX_TITLE_LENGTH}
           className="text-xl font-semibold tracking-tight"
         />
         <EditableText
           value={link.notes}
           placeholder="notes"
-          onSave={(notes) => onUpdate({ notes })}
+          onSave={saveNotes}
           maxLength={MAX_NOTES_LENGTH}
           className="text-body text-muted"
         />
       </div>
 
       <div className="flex items-center gap-2 text-sm">
-        <IconButton onClick={copyShortUrl} label={copied ? "Copied!" : "Copy short link"}>
-          {copied ? <CheckIcon /> : <CopyIcon />}
+        <IconButton onClick={copyShortUrl} label={copyLabel}>
+          {copyIcon}
         </IconButton>
         <span className="truncate font-mono">{shortUrl.replace(/^https?:\/\//, "")}</span>
       </div>
@@ -94,14 +161,20 @@ export default function UrlCardView({ link, allTags, onDelete, onUpdate, onAddTa
       </div>
 
       <ChipList
-        kind="tag"
         items={link.all_tags}
         allItems={allTags}
-        onAdd={onAddTag}
-        onRemove={onRemoveTag}
+        onAdd={handleAddTag}
+        onRemove={handleRemoveTag}
         max={MAX_TAGS_PER_URL}
         nameMaxLength={MAX_TAG_NAME_LENGTH}
       />
+
+      {/* role="alert": screen readers read the error out as soon as it appears */}
+      {error && (
+        <p role="alert" className="text-body text-danger">
+          {error}
+        </p>
+      )}
 
       {/* mt-auto pushes this row to the bottom, so cards of different heights line up */}
       <div className="mt-auto flex justify-between pt-2">
@@ -112,8 +185,10 @@ export default function UrlCardView({ link, allTags, onDelete, onUpdate, onAddTa
       {changingUrl && (
         <ChangeUrlDialog
           link={link}
-          onSave={(raw_url) => {
-            onUpdate({ raw_url });
+          onSave={async (raw_url) => {
+            // only close once the update actually succeeds; on error, the
+            // dialog stays open and shows the message
+            await onUpdate({ raw_url });
             setChangingUrl(false);
           }}
           onClose={() => setChangingUrl(false)}

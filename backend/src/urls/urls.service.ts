@@ -99,22 +99,29 @@ export class UrlsService {
 
     const result: UrlWithTagsResponse[] = [];
     for (const resUrl of resUrls) {
-      const urlResponse = toResponse(resUrl);
-      const all_tags = await this.findTagsByUrl(resUrl.id);
-      const click_count = await this.findClickCountByUrl(resUrl.id);
-      result.push({
-        id: urlResponse.id,
-        raw_url: urlResponse.raw_url,
-        short_code: urlResponse.short_code,
-        title: urlResponse.title,
-        notes: urlResponse.notes,
-        created_at: urlResponse.created_at,
-        updated_at: urlResponse.updated_at,
-        all_tags,
-        click_count,
-      });
+      result.push(await this.buildUrlWithTags(resUrl));
     }
     return result;
+  }
+
+  // one url's response, with its tags and click count added. Used by findAll()
+  // here and by TagsUrlsService.findUrlsByTag(), so the same 9 fields aren't
+  // built twice.
+  async buildUrlWithTags(resUrl: urls): Promise<UrlWithTagsResponse> {
+    const urlResponse = toResponse(resUrl);
+    const all_tags = await this.findTagsByUrl(resUrl.id);
+    const click_count = await this.findClickCountByUrl(resUrl.id);
+    return {
+      id: urlResponse.id,
+      raw_url: urlResponse.raw_url,
+      short_code: urlResponse.short_code,
+      title: urlResponse.title,
+      notes: urlResponse.notes,
+      created_at: urlResponse.created_at,
+      updated_at: urlResponse.updated_at,
+      all_tags,
+      click_count,
+    };
   }
 
   // every tag linked to this url, one query per call (fine at this project's scale)

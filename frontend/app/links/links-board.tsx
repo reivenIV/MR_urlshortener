@@ -10,10 +10,17 @@ import type { Tag, UrlCard, UrlCardWithTags } from "@/lib/types";
 export default function LinksBoard() {
   const [links, setLinks] = useState<UrlCardWithTags[] | null>(null);
   const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getLinks().then(setLinks);
-    api.getTags().then(setAllTags);
+    api.getLinks().then(setLinks).catch((err) => {
+      let message = "Could not load your links. Try refreshing the page.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setLoadError(message);
+    });
+    api.getTags().then(setAllTags); // tag suggestions are optional: if this fails, the list is just empty
   }, []);
 
   // A brand-new card has no tags yet, and it's the most recently updated
@@ -24,7 +31,20 @@ export default function LinksBoard() {
 
   // Put the given card in place of the old one with the same id.
   function replaceCard(updated: UrlCardWithTags) {
-    setLinks((current) => current && current.map((l) => (l.id === updated.id ? updated : l)));
+    setLinks((current) => {
+      if (!current) {
+        return current;
+      }
+      const next: UrlCardWithTags[] = [];
+      for (const l of current) {
+        if (l.id === updated.id) {
+          next.push(updated);
+        } else {
+          next.push(l);
+        }
+      }
+      return next;
+    });
   }
 
   async function addTag(link: UrlCardWithTags, name: string) {
@@ -35,7 +55,13 @@ export default function LinksBoard() {
 
   async function removeTag(link: UrlCardWithTags, tagId: number) {
     await api.removeTagFromLink(link.id, tagId);
-    replaceCard({ ...link, all_tags: link.all_tags.filter((t) => t.id !== tagId) });
+    const remainingTags: Tag[] = [];
+    for (const t of link.all_tags) {
+      if (t.id !== tagId) {
+        remainingTags.push(t);
+      }
+    }
+    replaceCard({ ...link, all_tags: remainingTags });
   }
 
   return (
@@ -44,7 +70,13 @@ export default function LinksBoard() {
         <NewLinkForm onCreated={addCard} />
       </div>
 
-      {!links && <p className="mt-16 text-body text-muted">Loading…</p>}
+      {loadError && (
+        <p role="alert" className="mt-16 text-body text-danger">
+          {loadError}
+        </p>
+      )}
+
+      {!links && !loadError && <p className="mt-16 text-body text-muted">Loading…</p>}
 
       {links && (
         <div className="mt-16 flex flex-col gap-10">
