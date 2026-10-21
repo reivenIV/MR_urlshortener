@@ -5,7 +5,7 @@ up:
 	docker compose up --build -d -V
 	@echo ""
 	@echo "API: http://localhost:3003"
-	@echo "Frontend: http://localhost:3004"
+	@echo "Frontend: http://localhost:3000"
 
 down:
 	docker compose down

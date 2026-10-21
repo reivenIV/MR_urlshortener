@@ -41,8 +41,7 @@ services:
       # read in the browser, so it must be the api's host-mapped port, not "api"
       NEXT_PUBLIC_API_URL: http://localhost:3003/v1
     ports:
-      # 3000-3002 taken by other projects
-      - "3004:3000"
+      - "3000:3000"
     volumes:
       # live reload
       - ./frontend:/app
