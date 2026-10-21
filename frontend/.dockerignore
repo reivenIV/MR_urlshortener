@@ -1,0 +1,3 @@
+# Don't copy local installs / build output into the image.
+node_modules
+.next

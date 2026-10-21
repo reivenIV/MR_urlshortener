@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Design tokens: "Full-bleed Grid with Dividers".
+   Plan: docs/session_plans/2026-10-17-shortener-grid-redesign.md
+   Declared ONCE here. Components use the role names: text-ink, bg-surface,
+   border-hairline, text-muted, text-danger... never raw hex values. */
+@theme {
+  --color-ink: #0a0a0a; /* primary text */
+  --color-surface: #ffffff; /* page background, cards */
+  --color-accent: #0a0a0a; /* the one primary button per page */
+  --color-muted: #737373; /* body text, metadata, placeholders */
+  --color-hairline: #e5e5e5; /* borders of cards, inputs, chips */
+  --color-danger: #b3261e; /* error messages only (added on request) */
+  --color-grid-line: rgba(15, 15, 15, 0.06); /* the 6 vertical page lines */
+  --color-divider: rgba(15, 15, 15, 0.08); /* lines between sections */
+}
+
+/* Fonts are loaded by next/font in app/layout.tsx (Geist + Geist Mono). */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Text styles from the spec. Use them as classes: "text-headline", "eyebrow"... */
+@utility text-headline {
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+@utility text-body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+/* Small uppercase mono labels: metadata like "42 CLICKS" or dates. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Diagonal stripes: at most ONCE per page, to open a section. */
+@utility band {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(15, 15, 15, 0.04) 0 1px,
+    transparent 1px 8px
+  );
+}
