@@ -18,9 +18,10 @@ export type UrlResponse = {
   updated_at: Date;
 };
 
-// same as UrlResponse, plus the tags linked to this url
+// same as UrlResponse, plus the tags linked to this url and how many times it was clicked
 export type UrlWithTagsResponse = UrlResponse & {
   all_tags: TagResponse[];
+  click_count: number;
 };
 
 // id is already a plain number (Int column), no conversion needed
@@ -100,6 +101,7 @@ export class UrlsService {
     for (const resUrl of resUrls) {
       const urlResponse = toResponse(resUrl);
       const all_tags = await this.findTagsByUrl(resUrl.id);
+      const click_count = await this.findClickCountByUrl(resUrl.id);
       result.push({
         id: urlResponse.id,
         raw_url: urlResponse.raw_url,
@@ -109,6 +111,7 @@ export class UrlsService {
         created_at: urlResponse.created_at,
         updated_at: urlResponse.updated_at,
         all_tags,
+        click_count,
       });
     }
     return result;
@@ -127,6 +130,12 @@ export class UrlsService {
       result.push(toTagResponse(resTagUrl.tags));
     }
     return result;
+  }
+
+  // how many times this url was visited; a direct query, not a call into
+  // ClicksService, to avoid a circular import (ClicksModule already imports UrlsModule)
+  async findClickCountByUrl(url_id: number): Promise<number> {
+    return await this.prisma.url_clicks.count({ where: { url_id } });
   }
 
   // null if no url has this id

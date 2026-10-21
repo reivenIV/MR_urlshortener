@@ -57,6 +57,7 @@ describe('Urls (e2e)', () => {
     const found = res.body.find((url: { id: number }) => url.id === createdId);
     expect(found).toBeDefined();
     expect(found.all_tags).toEqual([]);
+    expect(found.click_count).toBe(0);
   });
 
   it('updates a url', async () => {

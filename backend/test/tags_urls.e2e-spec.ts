@@ -60,6 +60,7 @@ describe('TagsUrls (e2e)', () => {
     const found = res.body.find((url: { id: number }) => url.id === urlId);
     expect(found).toBeDefined();
     expect(found.all_tags.some((tag: { id: number }) => tag.id === tagId)).toBe(true);
+    expect(found.click_count).toBe(0);
   });
 
   it('removes the link, then 404s on removing it again', async () => {
