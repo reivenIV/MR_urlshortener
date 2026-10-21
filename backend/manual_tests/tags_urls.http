@@ -21,4 +21,12 @@ Content-Type: application/json
 	"tag_id": 1
 }
 
+### an 8th tag on the same url -> 400 (max 7 tags/url; give it 7 different tag_ids first)
+POST {{baseUrl}}/tags_urls
+Content-Type: application/json
+
+{
+	"url_id": 15,
+	"tag_id": 8
+}
 

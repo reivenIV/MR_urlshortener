@@ -13,7 +13,8 @@ describe('Tags (e2e)', () => {
     const testApp = await createTestApp();
     app = testApp.app;
     prisma = testApp.prisma;
-    testName = `e2e_tag_${Date.now()}`;
+    // short: tag names are capped at 15 chars now, "_b" variant included
+    testName = `e2e${Date.now() % 100000}`;
   });
 
   afterAll(async () => {

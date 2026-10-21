@@ -18,7 +18,7 @@ Content-Type: application/json
 	"notes": "just a test"
 }
 
-### list all urls
+### list all urls (each one comes with all_tags and click_count)
 GET {{baseUrl}}/urls/all
 
 ### update a url (replace 1 with a real id)
@@ -34,6 +34,32 @@ PATCH {{baseUrl}}/urls/1
 Content-Type: application/json
 
 {}
+
+### http:// is rejected -> 400 (https only)
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "http://example.com"
+}
+
+### title over 30 chars -> 400
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "https://example.com",
+	"title": "this title is way too long to be allowed here"
+}
+
+### notes over 75 chars -> 400
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "https://example.com",
+	"notes": "this note is definitely going to be longer than the seventy five character limit we picked"
+}
 
 ### delete a url (replace 1 with a real id)
 DELETE {{baseUrl}}/urls/1

@@ -42,5 +42,14 @@ Content-Type: application/json
 
 {}
 
+### name over 15 chars -> 400
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{
+	"name": "way-too-long-a-tag-name"
+}
+
 ### delete a tag (replace 1 with a real id)
+### (also deletes it from every url that had it - ON DELETE CASCADE on tags_urls)
 DELETE {{baseUrl}}/tags/1

@@ -2,15 +2,17 @@ import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 
 export class UpdateUrlDto {
   @IsOptional()
-  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
+  @IsUrl({ protocols: ['https'], require_protocol: true })
   @MaxLength(2000)
   raw_url?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(30)
   title?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(75)
   notes?: string;
 }

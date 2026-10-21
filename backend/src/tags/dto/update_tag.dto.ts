@@ -3,7 +3,7 @@ import { IsOptional, IsString, Matches, MaxLength, IsNotEmpty } from 'class-vali
 export class UpdateTagDto {
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(15)
   @IsNotEmpty()
   name?: string;
 

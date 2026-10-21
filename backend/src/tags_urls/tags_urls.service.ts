@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { TagsService } from '../tags/tags.service.js';
 import { toResponse as toUrlResponse, UrlsService, type UrlWithTagsResponse } from '../urls/urls.service.js';
@@ -10,6 +10,8 @@ export type TagUrlResponse = {
   tag_id: number;
   created_at: Date;
 };
+
+const MAX_TAGS_PER_URL = 7;
 
 @Injectable()
 export class TagsUrlsService {
@@ -35,6 +37,11 @@ export class TagsUrlsService {
     });
     if (resExisting) {
       throw new ConflictException(`Url ${dto.url_id} already has tag ${dto.tag_id}`);
+    }
+
+    const tagCount = await this.prisma.tags_urls.count({ where: { url_id: dto.url_id } });
+    if (tagCount >= MAX_TAGS_PER_URL) {
+      throw new BadRequestException([`A url can have at most ${MAX_TAGS_PER_URL} tags`]);
     }
 
     const resTagUrl = await this.prisma.tags_urls.create({
@@ -72,6 +79,7 @@ export class TagsUrlsService {
     for (const resTagUrl of resTagUrls) {
       const urlResponse = toUrlResponse(resTagUrl.urls);
       const all_tags = await this.urlsService.findTagsByUrl(resTagUrl.urls.id);
+      const click_count = await this.urlsService.findClickCountByUrl(resTagUrl.urls.id);
       result.push({
         id: urlResponse.id,
         raw_url: urlResponse.raw_url,
@@ -81,6 +89,7 @@ export class TagsUrlsService {
         created_at: urlResponse.created_at,
         updated_at: urlResponse.updated_at,
         all_tags,
+        click_count,
       });
     }
     return result;
