@@ -1,12 +1,13 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ClicksModule } from './clicks/clicks.module.js';
+import { RedirectModule } from './redirect/redirect.module.js';
 import { TagsModule } from './tags/tags.module.js';
 import { TagsUrlsModule } from './tags_urls/tags_urls.module.js';
 import { UrlsModule } from './urls/urls.module.js';
 
 @Module({
-  imports: [UrlsModule, TagsModule, ClicksModule, TagsUrlsModule],
+  imports: [UrlsModule, TagsModule, ClicksModule, TagsUrlsModule, RedirectModule],
   providers: [
     // checks every request body against its DTO
     // With these block we activate the inbuilt validator of nest.js

@@ -8,5 +8,6 @@ import { ClicksService } from './clicks.service.js';
   imports: [PrismaModule, UrlsModule],
   controllers: [ClicksController],
   providers: [ClicksService],
+  exports: [ClicksService],
 })
 export class ClicksModule {}

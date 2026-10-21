@@ -1,0 +1,20 @@
+@host = http://localhost:3003
+@baseUrl = {{host}}/v1
+
+### create a url to redirect to (copy the short_code from the response)
+POST {{baseUrl}}/urls
+Content-Type: application/json
+
+{
+	"raw_url": "https://google.com"
+}
+
+### follow the short code -> 302 + Location header (replace with a real short_code)
+# if your editor auto-follows redirects, turn that off here to see the raw 302
+GET {{host}}/3bVlJjd
+
+### amount_clicks should now be 1 (replace 1 with the real url id)
+GET {{baseUrl}}/urls/amount_clicks/1
+
+### made-up short_code -> 404
+GET {{host}}/doesnotexist

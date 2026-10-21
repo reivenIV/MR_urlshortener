@@ -22,4 +22,9 @@ export class ClicksService {
     const amount_clicks = await this.prisma.url_clicks.count({ where: { url_id } });
     return { amount_clicks };
   }
+
+  // called by the redirect, one row per visit
+  async record(url_id: number): Promise<void> {
+    await this.prisma.url_clicks.create({ data: { url_id } });
+  }
 }
