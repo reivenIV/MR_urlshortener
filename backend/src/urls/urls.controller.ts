@@ -8,22 +8,22 @@ export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
   @Post()
-  create(@Body() dto: CreateUrlDto) {
-    return this.urlsService.create(dto);
+  async create(@Body() dto: CreateUrlDto) {
+    return await this.urlsService.create(dto);
   }
 
   @Get('all')
-  findAll() {
-    return this.urlsService.findAll();
+  async findAll() {
+    return await this.urlsService.findAll();
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUrlDto) {
-    return this.urlsService.update(id, dto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUrlDto) {
+    return await this.urlsService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.urlsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.urlsService.remove(id);
   }
 }

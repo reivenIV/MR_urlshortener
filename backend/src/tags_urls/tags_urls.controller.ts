@@ -7,17 +7,17 @@ export class TagsUrlsController {
   constructor(private readonly tagsUrlsService: TagsUrlsService) {}
 
   @Post('tags_urls')
-  create(@Body() dto: TagUrlDto) {
-    return this.tagsUrlsService.create(dto);
+  async create(@Body() dto: TagUrlDto) {
+    return await this.tagsUrlsService.create(dto);
   }
 
   @Delete('tags_urls')
-  remove(@Body() dto: TagUrlDto) {
-    return this.tagsUrlsService.remove(dto);
+  async remove(@Body() dto: TagUrlDto) {
+    return await this.tagsUrlsService.remove(dto);
   }
 
   @Get('urls_by_tag/:tag_id')
-  findUrlsByTag(@Param('tag_id', ParseIntPipe) tag_id: number) {
-    return this.tagsUrlsService.findUrlsByTag(tag_id);
+  async findUrlsByTag(@Param('tag_id', ParseIntPipe) tag_id: number) {
+    return await this.tagsUrlsService.findUrlsByTag(tag_id);
   }
 }

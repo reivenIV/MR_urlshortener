@@ -6,7 +6,7 @@ export class ClicksController {
   constructor(private readonly clicksService: ClicksService) {}
 
   @Get()
-  countByUrl(@Param('url_id', ParseIntPipe) url_id: number) {
-    return this.clicksService.countByUrl(url_id);
+  async countByUrl(@Param('url_id', ParseIntPipe) url_id: number) {
+    return await this.clicksService.countByUrl(url_id);
   }
 }

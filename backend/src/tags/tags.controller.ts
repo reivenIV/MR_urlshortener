@@ -8,22 +8,22 @@ export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
   @Post()
-  create(@Body() dto: CreateTagDto) {
-    return this.tagsService.create(dto);
+  async create(@Body() dto: CreateTagDto) {
+    return await this.tagsService.create(dto);
   }
 
   @Get('all')
-  findAll() {
-    return this.tagsService.findAll();
+  async findAll() {
+    return await this.tagsService.findAll();
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTagDto) {
-    return this.tagsService.update(id, dto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTagDto) {
+    return await this.tagsService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.tagsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.tagsService.remove(id);
   }
 }
