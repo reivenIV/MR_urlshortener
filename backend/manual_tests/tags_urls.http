@@ -1,0 +1,24 @@
+@baseUrl = http://localhost:3003/v1
+
+### tag a url (replace ids with real ones)
+POST {{baseUrl}}/tags_urls
+Content-Type: application/json
+
+{
+	"url_id": 15,
+	"tag_id": 1
+}
+
+### list urls with a tag
+GET {{baseUrl}}/urls_by_tag/1
+
+### remove the tag from the url
+DELETE {{baseUrl}}/tags_urls
+Content-Type: application/json
+
+{
+	"url_id": 1,
+	"tag_id": 1
+}
+
+

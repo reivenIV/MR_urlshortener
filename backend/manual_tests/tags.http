@@ -5,7 +5,7 @@ POST {{baseUrl}}/tags
 Content-Type: application/json
 
 {
-	"name": "Music"
+	"name": "Music10"
 }
 
 ### create a tag with a color

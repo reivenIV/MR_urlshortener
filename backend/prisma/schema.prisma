@@ -11,30 +11,37 @@ datasource db {
 }
 
 model urls {
-  id         Int          @id @default(autoincrement())
-  raw_url    String
-  short_code String       @unique
-  title      String?
-  notes      String?
-  created_at DateTime     @default(now()) @db.Timestamptz(6)
-  updated_at DateTime     @updatedAt @db.Timestamptz(6)
-  url_clicks url_clicks[]
+  id           Int            @id @default(autoincrement())
+  raw_url      String
+  short_code   String         @unique
+  title        String?
+  notes        String?
+  created_at   DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime       @updatedAt @db.Timestamptz(6)
+  url_clicks   url_clicks[]
+  tags_urls    tags_urls[]
 
   @@index([raw_url])
 }
 
 model tags {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  color String @default("#808080")
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  color      String     @default("#808080")
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  tags_urls  tags_urls[]
 }
 
-model folders {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime @updatedAt @db.Timestamptz(6)
+model tags_urls {
+  id         Int      @id @default(autoincrement())
+  url_id     Int
+  tag_id     Int
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  urls       urls     @relation(fields: [url_id], references: [id], onDelete: Cascade)
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([url_id, tag_id])
+  @@index([tag_id])
 }
 
 model url_clicks {

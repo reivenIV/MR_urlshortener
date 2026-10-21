@@ -11,7 +11,7 @@ export type TagResponse = {
   color: string;
 };
 
-function toResponse(resTag: tags): TagResponse {
+export function toResponse(resTag: tags): TagResponse {
   return {
     id: resTag.id,
     name: resTag.name,

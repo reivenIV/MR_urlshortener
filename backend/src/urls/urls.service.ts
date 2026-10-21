@@ -3,6 +3,7 @@ import { randomInt } from 'node:crypto';
 import { hasAtLeastOneField } from '../common/common_validators.js';
 import { type urls } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { toResponse as toTagResponse, type TagResponse } from '../tags/tags.service.js';
 import { CreateUrlDto } from './dto/create_url.dto.js';
 import { UpdateUrlDto } from './dto/update_url.dto.js';
 
@@ -14,10 +15,16 @@ export type UrlResponse = {
   title: string | null;
   notes: string | null;
   created_at: Date;
+  updated_at: Date;
+};
+
+// same as UrlResponse, plus the tags linked to this url
+export type UrlWithTagsResponse = UrlResponse & {
+  all_tags: TagResponse[];
 };
 
 // id is already a plain number (Int column), no conversion needed
-function toResponse(resUrl: urls): UrlResponse {
+export function toResponse(resUrl: urls): UrlResponse {
   return {
     id: resUrl.id,
     raw_url: resUrl.raw_url,
@@ -25,6 +32,7 @@ function toResponse(resUrl: urls): UrlResponse {
     title: resUrl.title,
     notes: resUrl.notes,
     created_at: resUrl.created_at,
+    updated_at: resUrl.updated_at,
   };
 }
 
@@ -83,14 +91,40 @@ export class UrlsService {
     return toResponse(resUrl);
   }
 
-  async findAll(): Promise<UrlResponse[]> {
+  async findAll(): Promise<UrlWithTagsResponse[]> {
     const resUrls = await this.prisma.urls.findMany({
-      orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+      orderBy: [{ updated_at: 'desc' }, { id: 'desc' }],
     });
 
-    const result: UrlResponse[] = [];
+    const result: UrlWithTagsResponse[] = [];
     for (const resUrl of resUrls) {
-      result.push(toResponse(resUrl));
+      const urlResponse = toResponse(resUrl);
+      const all_tags = await this.findTagsByUrl(resUrl.id);
+      result.push({
+        id: urlResponse.id,
+        raw_url: urlResponse.raw_url,
+        short_code: urlResponse.short_code,
+        title: urlResponse.title,
+        notes: urlResponse.notes,
+        created_at: urlResponse.created_at,
+        updated_at: urlResponse.updated_at,
+        all_tags,
+      });
+    }
+    return result;
+  }
+
+  // every tag linked to this url, one query per call (fine at this project's scale)
+  async findTagsByUrl(url_id: number): Promise<TagResponse[]> {
+    const resTagsUrls = await this.prisma.tags_urls.findMany({
+      where: { url_id },
+      include: { tags: true },
+      orderBy: [{ created_at: 'desc' }],
+    });
+
+    const result: TagResponse[] = [];
+    for (const resTagUrl of resTagsUrls) {
+      result.push(toTagResponse(resTagUrl.tags));
     }
     return result;
   }
